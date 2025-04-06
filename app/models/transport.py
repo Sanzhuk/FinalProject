@@ -22,4 +22,7 @@ class Transport(Base):
     
     # Owner relationship (many-to-one)
     owner_id = Column(Integer, ForeignKey("users.id"))
-    owner = relationship("User", back_populates="transports") 
+    owner = relationship("User", back_populates="transports")
+    
+    # Conversations relationship (one-to-many)
+    conversations = relationship("Conversation", back_populates="transport", cascade="all, delete-orphan") 

@@ -149,6 +149,7 @@ AgriTransport{% endblock %} {% block content %}
 
         {% if transport.available %}
         <button
+          id="requestBookingBtn"
           class="w-full bg-primary hover:bg-primary/90 text-white font-semibold py-3 px-4 rounded-lg transition mb-3"
         >
           Request Booking
@@ -162,8 +163,10 @@ AgriTransport{% endblock %} {% block content %}
         {% endif %}
 
         <button
+          id="contactOwnerBtn"
           class="w-full border border-primary text-primary hover:bg-primary/5 font-semibold py-3 px-4 rounded-lg transition"
         >
+          <i class="fas fa-comment-dots mr-2"></i>
           Contact Owner
         </button>
       </div>
@@ -276,4 +279,87 @@ AgriTransport{% endblock %} {% block content %}
     </div>
   </div>
 </div>
+{% endblock %} {% block scripts %}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const contactOwnerBtn = document.getElementById("contactOwnerBtn");
+    const requestBookingBtn = document.getElementById("requestBookingBtn");
+
+    if (contactOwnerBtn) {
+      contactOwnerBtn.addEventListener("click", startConversation);
+    }
+
+    if (requestBookingBtn) {
+      requestBookingBtn.addEventListener("click", function () {
+        // For now, redirect to the same conversation flow
+        startConversation();
+      });
+    }
+  });
+
+  async function startConversation() {
+    // Check if user is logged in
+    if (!auth.isLoggedIn()) {
+      // If not logged in, redirect to login page
+      window.location.href = "/login";
+      return;
+    }
+
+    // Check if user is the owner
+    const currentUser = auth.getCurrentUser();
+    const ownerUsername = "{{ transport.owner.username }}";
+
+    if (currentUser === ownerUsername) {
+      alert(
+        "You can't start a conversation with yourself as you are the owner of this transport."
+      );
+      return;
+    }
+
+    try {
+      // Create or get existing conversation
+      const requestData = {
+        transport_id: parseInt("{{ transport.id }}"),
+      };
+      console.log("Starting conversation with data:", requestData);
+      console.log("Current user:", currentUser);
+      console.log("Owner username:", ownerUsername);
+
+      const response = await authFetch("/api/chat/conversations", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(requestData),
+      });
+
+      if (response.ok) {
+        const conversation = await response.json();
+        // Redirect to the conversation page
+        window.location.href = `/messages/${conversation.id}`;
+      } else if (response.status === 401) {
+        // Unauthorized, redirect to login
+        window.location.href = "/login";
+      } else {
+        // Other error
+        try {
+          const errorData = await response.json();
+          alert(
+            `Error: ${
+              errorData.detail ||
+              "Could not start conversation. Please try again later."
+            }`
+          );
+          console.error("Error starting conversation:", errorData);
+        } catch (e) {
+          alert("Could not start conversation. Please try again later.");
+          console.error("Error starting conversation:", await response.text());
+        }
+      }
+    } catch (error) {
+      console.error("Error starting conversation:", error);
+      alert("Could not start conversation. Please try again later.");
+    }
+  }
+</script>
 {% endblock %}

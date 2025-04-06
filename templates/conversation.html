@@ -1,0 +1,407 @@
+{% extends "base.html" %} {% block title %}Conversation | AgriTransport{%
+endblock %} {% block content %}
+<div class="py-6">
+  <!-- Authentication Check - This section will show if user is not logged in -->
+  <div id="not-authenticated" class="hidden">
+    <div class="text-center py-12">
+      <i class="fas fa-lock text-5xl text-gray-300 mb-4"></i>
+      <h2 class="text-2xl font-bold text-gray-800 mb-4">
+        Authentication Required
+      </h2>
+      <p class="text-gray-600 mb-6">
+        You need to be logged in to view messages.
+      </p>
+      <div class="flex justify-center space-x-4">
+        <a
+          href="/login"
+          class="bg-primary hover:bg-primary/90 text-white font-semibold py-2 px-6 rounded-lg transition"
+        >
+          Login
+        </a>
+        <a
+          href="/register"
+          class="border border-primary text-primary hover:bg-primary/5 font-semibold py-2 px-6 rounded-lg transition"
+        >
+          Register
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading indicator -->
+  <div id="loading-indicator" class="text-center py-10">
+    <div
+      class="animate-spin rounded-full h-16 w-16 border-b-2 border-primary mx-auto mb-4"
+    ></div>
+    <p class="text-gray-600">Loading conversation...</p>
+  </div>
+
+  <!-- Error message -->
+  <div
+    id="error-message"
+    class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md mb-6 hidden"
+  >
+    <span id="error-text"
+      >Could not load conversation. Please try again later.</span
+    >
+  </div>
+
+  <!-- Main content - Only visible when authenticated and loaded -->
+  <div id="conversation-container" class="hidden">
+    <div class="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-6">
+      <!-- Conversation header and sidebar -->
+      <div class="md:w-1/3 lg:w-1/4">
+        <div class="bg-white rounded-lg shadow-md p-4 sticky top-6">
+          <div class="flex items-center mb-4">
+            <a href="/messages" class="text-primary hover:underline mr-2">
+              <i class="fas fa-arrow-left"></i> Back to Messages
+            </a>
+          </div>
+          <div class="text-center mb-4">
+            <div class="h-24 w-24 mx-auto relative">
+              <div
+                id="transport-image"
+                class="h-24 w-24 rounded-md bg-primary/10 flex items-center justify-center"
+              >
+                <i class="fas fa-tractor text-primary text-3xl"></i>
+              </div>
+            </div>
+            <h3
+              id="transport-name"
+              class="text-xl font-bold text-gray-800 mt-2 mb-1"
+            >
+              Transport Name
+            </h3>
+            <a
+              id="transport-link"
+              href="#"
+              class="text-primary hover:underline text-sm"
+            >
+              View Transport
+            </a>
+          </div>
+          <div class="border-t border-gray-200 pt-4">
+            <div class="flex mb-3">
+              <div class="w-8">
+                <i class="fas fa-user-circle text-primary"></i>
+              </div>
+              <div>
+                <p class="text-sm text-gray-600">Renter</p>
+                <p id="renter-username" class="font-medium">Loading...</p>
+              </div>
+            </div>
+            <div class="flex">
+              <div class="w-8">
+                <i class="fas fa-key text-primary"></i>
+              </div>
+              <div>
+                <p class="text-sm text-gray-600">Owner</p>
+                <p id="owner-username" class="font-medium">Loading...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chat content -->
+      <div class="md:w-2/3 lg:w-3/4">
+        <div
+          class="bg-white rounded-lg shadow-md overflow-hidden flex flex-col h-[600px]"
+        >
+          <div class="bg-gray-50 border-b border-gray-200 px-4 py-3">
+            <h3 id="chat-header" class="text-lg font-semibold text-gray-800">
+              Conversation about
+              <span id="chat-transport-name">Transport Name</span>
+            </h3>
+          </div>
+          <div
+            id="messages-container"
+            class="flex-1 overflow-y-auto p-4 space-y-4"
+          >
+            <!-- Messages will be loaded here -->
+            <div class="text-center text-gray-500 py-2 text-sm">
+              <!-- Beginning of conversation indicator -->
+              Loading messages...
+            </div>
+          </div>
+          <div class="border-t border-gray-200 p-4">
+            <form id="message-form" class="flex">
+              <input
+                type="text"
+                id="message-input"
+                placeholder="Type your message here..."
+                class="flex-1 border border-gray-300 rounded-l-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                required
+              />
+              <button
+                type="submit"
+                class="bg-primary hover:bg-primary/90 text-white px-6 py-2 rounded-r-lg transition flex items-center"
+              >
+                <span>Send</span>
+                <i class="fas fa-paper-plane ml-2"></i>
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} {% block scripts %}
+<script>
+  // Store conversation data globally for reuse
+  let conversationData = null;
+
+  // Get conversation ID from URL (set by the server in the template)
+  const conversationId = "{{ conversation_id }}";
+
+  // Check authentication state
+  document.addEventListener("DOMContentLoaded", function () {
+    if (!auth.isLoggedIn()) {
+      // Show not authenticated message
+      document.getElementById("not-authenticated").classList.remove("hidden");
+      document.getElementById("loading-indicator").classList.add("hidden");
+    } else {
+      // User is authenticated, load the conversation
+      document.getElementById("not-authenticated").classList.add("hidden");
+      loadConversation();
+    }
+
+    // Set up the message form
+    document
+      .getElementById("message-form")
+      .addEventListener("submit", sendMessage);
+  });
+
+  // Function to load conversation details
+  async function loadConversation() {
+    const loadingIndicator = document.getElementById("loading-indicator");
+    const errorMessage = document.getElementById("error-message");
+    const conversationContainer = document.getElementById(
+      "conversation-container"
+    );
+    const errorText = document.getElementById("error-text");
+
+    // Show loading indicator
+    loadingIndicator.classList.remove("hidden");
+    errorMessage.classList.add("hidden");
+    conversationContainer.classList.add("hidden");
+
+    try {
+      // Get conversation details
+      const response = await authFetch(
+        `/api/chat/conversations/${conversationId}`
+      );
+
+      if (response && response.ok) {
+        conversationData = await response.json();
+
+        // Update conversation UI with details
+        updateConversationUI(conversationData);
+
+        // Load messages
+        await loadMessages();
+
+        // Hide loading indicator and show conversation
+        loadingIndicator.classList.add("hidden");
+        conversationContainer.classList.remove("hidden");
+
+        // Focus on message input
+        document.getElementById("message-input").focus();
+
+        // Set up polling for new messages
+        setInterval(loadMessages, 10000); // Check for new messages every 10 seconds
+      } else if (response && response.status === 403) {
+        // User doesn't have access
+        loadingIndicator.classList.add("hidden");
+        errorText.textContent = "You don't have access to this conversation.";
+        errorMessage.classList.remove("hidden");
+      } else if (response && response.status === 404) {
+        // Conversation not found
+        loadingIndicator.classList.add("hidden");
+        errorText.textContent = "Conversation not found.";
+        errorMessage.classList.remove("hidden");
+      } else {
+        // Other error
+        loadingIndicator.classList.add("hidden");
+        errorMessage.classList.remove("hidden");
+      }
+    } catch (error) {
+      console.error("Error loading conversation:", error);
+      loadingIndicator.classList.add("hidden");
+      errorMessage.classList.remove("hidden");
+    }
+  }
+
+  // Update the UI with conversation details
+  function updateConversationUI(conversation) {
+    // Set transport details
+    document.getElementById("transport-name").textContent =
+      conversation.transport_name;
+    document.getElementById("chat-transport-name").textContent =
+      conversation.transport_name;
+    document.getElementById(
+      "transport-link"
+    ).href = `/transports/${conversation.transport_id}`;
+
+    // Set transport image if available
+    if (conversation.transport_image) {
+      document.getElementById("transport-image").innerHTML = `
+        <img src="${conversation.transport_image}" alt="${conversation.transport_name}" class="h-24 w-24 object-cover rounded-md">
+      `;
+    }
+
+    // Set usernames
+    document.getElementById("renter-username").textContent =
+      conversation.renter_username;
+    document.getElementById("owner-username").textContent =
+      conversation.owner_username;
+  }
+
+  // Load messages for the conversation
+  async function loadMessages() {
+    try {
+      const response = await authFetch(
+        `/api/chat/conversations/${conversationId}/messages`
+      );
+
+      if (response && response.ok) {
+        const messages = await response.json();
+        renderMessages(messages);
+      }
+    } catch (error) {
+      console.error("Error loading messages:", error);
+    }
+  }
+
+  // Render messages in the UI
+  function renderMessages(messages) {
+    const messagesContainer = document.getElementById("messages-container");
+    const currentUser = auth.getCurrentUser();
+
+    // Only completely replace the messages if this is the first load
+    if (messagesContainer.children.length <= 1) {
+      // Start with the beginning of conversation indicator
+      let html = `
+        <div class="text-center text-gray-500 py-2 text-sm">
+          Beginning of conversation
+        </div>
+      `;
+
+      // Generate HTML for each message
+      if (messages.length > 0) {
+        messages.forEach((message) => {
+          const isOwnMessage = message.sender_username === currentUser;
+          html += createMessageHTML(message, isOwnMessage);
+        });
+      } else {
+        html += `
+          <div class="text-center text-gray-500 py-2">
+            No messages yet. Start the conversation!
+          </div>
+        `;
+      }
+
+      messagesContainer.innerHTML = html;
+
+      // Scroll to bottom
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    } else if (messages.length > 0) {
+      // Check if we have new messages to add
+      const existingMessageIds = Array.from(
+        messagesContainer.querySelectorAll(".chat-message")
+      ).map((el) => parseInt(el.dataset.messageId));
+
+      let newMessagesAdded = false;
+
+      messages.forEach((message) => {
+        if (!existingMessageIds.includes(message.id)) {
+          const isOwnMessage = message.sender_username === currentUser;
+          const messageHTML = createMessageHTML(message, isOwnMessage);
+
+          // Append as HTML
+          messagesContainer.insertAdjacentHTML("beforeend", messageHTML);
+          newMessagesAdded = true;
+        }
+      });
+
+      // If new messages were added, scroll to bottom
+      if (newMessagesAdded) {
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      }
+    }
+  }
+
+  // Create HTML for a message
+  function createMessageHTML(message, isOwnMessage) {
+    const date = new Date(message.created_at);
+    const formattedTime = `${date.toLocaleDateString()} ${date.toLocaleTimeString(
+      [],
+      { hour: "2-digit", minute: "2-digit" }
+    )}`;
+
+    return `
+      <div class="chat-message" data-message-id="${message.id}">
+        <div class="flex ${isOwnMessage ? "justify-end" : "justify-start"}">
+          <div class="${
+            isOwnMessage
+              ? "bg-primary/10 text-gray-800"
+              : "bg-gray-100 text-gray-800"
+          }
+            max-w-[80%] md:max-w-[70%] rounded-lg px-4 py-2 shadow-sm">
+            <div class="flex items-center ${
+              isOwnMessage ? "justify-end" : "justify-start"
+            } mb-1">
+              <span class="font-medium text-sm ${
+                isOwnMessage ? "text-primary" : "text-gray-700"
+              }">
+                ${message.sender_username}
+              </span>
+              <span class="mx-2 text-gray-400">•</span>
+              <span class="text-xs text-gray-500">${formattedTime}</span>
+            </div>
+            <p class="whitespace-pre-wrap break-words">${message.content}</p>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  // Send a message
+  async function sendMessage(e) {
+    e.preventDefault();
+
+    const messageInput = document.getElementById("message-input");
+    const content = messageInput.value.trim();
+
+    if (content === "") return;
+
+    try {
+      const response = await authFetch(
+        `/api/chat/conversations/${conversationId}/messages`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            content: content,
+          }),
+        }
+      );
+
+      if (response && response.ok) {
+        // Clear input
+        messageInput.value = "";
+
+        // Refresh messages
+        await loadMessages();
+      } else {
+        console.error("Error sending message");
+      }
+    } catch (error) {
+      console.error("Error sending message:", error);
+    }
+  }
+</script>
+{% endblock %}

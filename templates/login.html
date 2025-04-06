@@ -105,12 +105,19 @@
       loginError.classList.add("hidden");
 
       // Get form data
-      const formData = new FormData(this);
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
 
       try {
         const response = await fetch("/api/auth/login", {
           method: "POST",
-          body: formData,
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+          body: new URLSearchParams({
+            username: email,
+            password: password,
+          }),
         });
 
         if (response.ok) {
@@ -119,8 +126,10 @@
           // Store the token
           localStorage.setItem("token", data.access_token);
 
-          // Update UI to reflect logged in state
-          updateAuthUI();
+          // Refresh the auth state to update the UI
+          if (typeof auth !== "undefined" && auth.updateUIState) {
+            auth.updateUIState();
+          }
 
           // Show success message
           const successDiv = document.createElement("div");

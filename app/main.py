@@ -5,9 +5,9 @@ from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 from typing import Optional
 import os
-from starlette.responses import RedirectResponse
+from starlette.responses import RedirectResponse, HTMLResponse
 
-from app.api import auth, transport, users
+from app.api import auth, transport, users, chat
 from app.db.database import engine, get_db
 from app.models import user, transport as transport_model
 from app.services.auth import get_current_active_user, get_current_user
@@ -39,6 +39,7 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 app.include_router(auth.router)
 app.include_router(transport.router)
 app.include_router(users.router)
+app.include_router(chat.router)
 
 # Templates
 templates = Jinja2Templates(directory="templates")
@@ -136,6 +137,16 @@ async def my_transports_page(
 async def api_root():
     return {"message": "Welcome to the Agricultural Transport Rental Platform API"}
 
+@app.get("/messages", response_class=HTMLResponse)
+async def messages_page(request: Request):
+    return templates.TemplateResponse("messages.html", {"request": request})
+
+@app.get("/messages/{conversation_id}", response_class=HTMLResponse)
+async def conversation_page(request: Request, conversation_id: int):
+    return templates.TemplateResponse("conversation.html", {
+        "request": request,
+        "conversation_id": conversation_id
+    })
 
 if __name__ == "__main__":
     import uvicorn
