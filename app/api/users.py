@@ -33,7 +33,6 @@ async def make_user_owner(
     if current_user.is_owner:
         return current_user
     
-    # Update the user to be an owner
     current_user.is_owner = True
     db.commit()
     db.refresh(current_user)

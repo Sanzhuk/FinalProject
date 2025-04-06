@@ -34,20 +34,15 @@ async def read_conversations(
     """Get all conversations for the current user"""
     conversations = get_conversations_for_user(db, current_user.id, skip, limit)
     
-    # Enrich the conversation data with additional info
     result = []
     for conv in conversations:
-        # Get transport details
         transport = get_transport_by_id(db, conv.transport_id)
         
-        # Get last message if any
         messages = get_messages(db, conv.id, 0, 1)
         last_message = messages[0] if messages else None
         
-        # Get unread count
         unread_count = get_unread_count_for_conversation(db, conv.id, current_user.id)
         
-        # Create response object
         detail = ConversationDetail(
             id=conv.id,
             transport_id=conv.transport_id,
@@ -75,22 +70,18 @@ async def create_new_conversation(
     current_user: User = Depends(get_current_active_user)
 ):
     """Create a new conversation about a transport"""
-    # Get the transport
     transport = get_transport_by_id(db, conversation.transport_id)
     if not transport:
         raise HTTPException(status_code=404, detail="Transport not found")
     
-    # Check if conversation already exists
     existing_conversation = None
     
-    # If current user is the owner, they can't start a conversation with themselves
     if transport.owner_id == current_user.id:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="You can't start a conversation about your own transport"
         )
     
-    # Try to find existing conversation
     existing_conversation = get_conversation_by_transport_and_users(
         db, 
         transport.id, 
@@ -101,7 +92,6 @@ async def create_new_conversation(
     if existing_conversation:
         return existing_conversation
     
-    # Create new conversation
     return create_conversation(
         db, 
         conversation, 
@@ -121,27 +111,21 @@ async def read_conversation(
     if not conversation:
         raise HTTPException(status_code=404, detail="Conversation not found")
     
-    # Check if user is part of the conversation
     if not is_conversation_participant(db, conversation_id, current_user.id):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="You don't have access to this conversation"
         )
     
-    # Get transport details
     transport = get_transport_by_id(db, conversation.transport_id)
     
-    # Get last message if any
     messages = get_messages(db, conversation.id, 0, 1)
     last_message = messages[0] if messages else None
     
-    # Get unread count
     unread_count = get_unread_count_for_conversation(db, conversation.id, current_user.id)
     
-    # Mark messages as read when conversation is opened
     mark_messages_as_read(db, conversation.id, current_user.id)
     
-    # Create response object
     detail = ConversationDetail(
         id=conversation.id,
         transport_id=conversation.transport_id,
@@ -170,25 +154,20 @@ async def read_messages(
     current_user: User = Depends(get_current_active_user)
 ):
     """Get messages for a specific conversation"""
-    # Check if conversation exists
     conversation = get_conversation(db, conversation_id)
     if not conversation:
         raise HTTPException(status_code=404, detail="Conversation not found")
     
-    # Check if user is part of the conversation
     if not is_conversation_participant(db, conversation_id, current_user.id):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="You don't have access to this conversation"
         )
     
-    # Get messages
     messages = get_messages(db, conversation_id, skip, limit)
     
-    # Mark messages as read
     mark_messages_as_read(db, conversation_id, current_user.id)
     
-    # Enrich with sender info
     result = []
     for msg in messages:
         sender = db.query(User).filter(User.id == msg.sender_id).first()
@@ -215,19 +194,16 @@ async def create_new_message(
     current_user: User = Depends(get_current_active_user)
 ):
     """Create a new message in a conversation"""
-    # Check if conversation exists
     conversation = get_conversation(db, conversation_id)
     if not conversation:
         raise HTTPException(status_code=404, detail="Conversation not found")
     
-    # Check if user is part of the conversation
     if not is_conversation_participant(db, conversation_id, current_user.id):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="You don't have access to this conversation"
         )
     
-    # Create message
     return create_message(db, message, conversation_id, current_user.id)
 
 

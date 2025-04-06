@@ -11,7 +11,6 @@ class User(Base):
     username = Column(String, unique=True, index=True)
     hashed_password = Column(String)
     is_active = Column(Boolean, default=True)
-    is_owner = Column(Boolean, default=False)  # To distinguish transport owners from regular users
+    is_owner = Column(Boolean, default=False)  
     
-    # Relationship to transports (one-to-many)
     transports = relationship("Transport", back_populates="owner") 

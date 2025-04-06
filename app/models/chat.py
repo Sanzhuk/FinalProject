@@ -16,7 +16,6 @@ class Conversation(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     is_active = Column(Boolean, default=True)
 
-    # Relationships
     transport = relationship("Transport", back_populates="conversations")
     renter = relationship("User", foreign_keys=[renter_id], backref="rental_conversations")
     owner = relationship("User", foreign_keys=[owner_id], backref="owned_conversations")
@@ -33,6 +32,5 @@ class Message(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     is_read = Column(Boolean, default=False)
 
-    # Relationships
     conversation = relationship("Conversation", back_populates="messages")
     sender = relationship("User", backref="sent_messages") 

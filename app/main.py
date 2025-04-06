@@ -13,7 +13,6 @@ from app.models import user, transport as transport_model
 from app.services.auth import get_current_active_user, get_current_user
 from app.services.transport import get_transports, get_transport_by_id, get_user_transports
 
-# Create the database tables
 user.Base.metadata.create_all(bind=engine)
 transport_model.Base.metadata.create_all(bind=engine)
 
@@ -32,19 +31,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Mount static files
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-# Include API routers
 app.include_router(auth.router)
 app.include_router(transport.router)
 app.include_router(users.router)
 app.include_router(chat.router)
 
-# Templates
 templates = Jinja2Templates(directory="templates")
 
-# HTML routes
 @app.get("/")
 async def home_page(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
@@ -66,7 +61,6 @@ async def transports_page(
     max_price: Optional[float] = None,
     db: Session = Depends(get_db)
 ):
-    # Get all transports with filtering
     filter_params = None
     if any([location, category, min_price, max_price]):
         from app.schemas.transport import TransportFilter
@@ -86,7 +80,6 @@ async def transports_page(
 
 @app.get("/transports/add")
 async def add_transport_page(request: Request):
-    # Authentication will be handled client-side
     return templates.TemplateResponse("add_transport.html", {"request": request})
 
 @app.get("/transports/{transport_id}/edit")
@@ -95,14 +88,11 @@ async def edit_transport_page(
     transport_id: int,
     db: Session = Depends(get_db)
 ):
-    # Get the transport without enforcing authentication
     transport_item = get_transport_by_id(db=db, transport_id=transport_id)
     
-    # Check if transport exists
     if not transport_item:
         raise HTTPException(status_code=404, detail="Transport not found")
     
-    # Authentication and ownership will be checked client-side
     return templates.TemplateResponse("edit_transport.html", {
         "request": request,
         "transport": transport_item
@@ -125,12 +115,9 @@ async def my_transports_page(
     request: Request, 
     db: Session = Depends(get_db)
 ):
-    # We don't enforce authentication at the template level
-    # This allows the page to load and handle authentication status client-side
-    # If the user is authenticated, their transports will be fetched via API
     return templates.TemplateResponse("my_transports.html", {
         "request": request,
-        "transports": []  # Empty by default, will be loaded via API if authenticated
+        "transports": [] 
     })
 
 @app.get("/api")
