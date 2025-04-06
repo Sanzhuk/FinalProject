@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}Agricultural Transport Rental{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: "#3b7d34",
+              secondary: "#f3a738",
+              dark: "#333333",
+            },
+          },
+        },
+      };
+    </script>
+    <!-- Auth utilities -->
+    <script src="{{ url_for('static', path='/js/auth.js') }}"></script>
+  </head>
+  <body class="flex flex-col min-h-screen bg-gray-50">
+    <header class="bg-white shadow-md">
+      <nav class="container mx-auto px-4 py-3">
+        <div class="flex justify-between items-center">
+          <div class="flex items-center">
+            <a
+              href="/"
+              class="flex items-center text-primary font-bold text-xl"
+            >
+              <i class="fas fa-tractor mr-2"></i>
+              <span>AgriTransport</span>
+            </a>
+          </div>
+          <div class="hidden md:flex items-center space-x-6">
+            <a href="/" class="text-gray-700 hover:text-primary transition"
+              >Home</a
+            >
+            <a
+              href="/transports"
+              class="text-gray-700 hover:text-primary transition"
+              >Browse Transports</a
+            >
+            <div class="relative" id="userMenuContainer">
+              <button
+                id="authToggleBtn"
+                class="flex items-center text-gray-700 hover:text-primary"
+              >
+                <i class="fas fa-user mr-1"></i>
+                <span id="authBtnText">Guest</span>
+                <i class="fas fa-chevron-down ml-1 text-xs"></i>
+              </button>
+              <div
+                class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10 hidden"
+                id="authDropdown"
+              >
+                <!-- Menu for guests -->
+                <div id="authMenuForGuests">
+                  <a
+                    href="/login"
+                    class="block px-4 py-2 text-gray-700 hover:bg-gray-100"
+                  >
+                    <i class="fas fa-sign-in-alt mr-2 text-primary"></i>
+                    Login
+                  </a>
+                  <a
+                    href="/register"
+                    class="block px-4 py-2 text-gray-700 hover:bg-gray-100"
+                  >
+                    <i class="fas fa-user-plus mr-2 text-primary"></i>
+                    Register
+                  </a>
+                </div>
+
+                <!-- Menu for authenticated users -->
+                <div id="authMenuForUsers" class="hidden">
+                  <div
+                    class="px-4 py-2 text-sm text-gray-500 border-b border-gray-100"
+                  >
+                    Logged in as
+                    <span
+                      class="font-semibold text-gray-700"
+                      id="usernameDisplay"
+                    ></span>
+                  </div>
+                  <a
+                    href="/my-transports"
+                    class="block px-4 py-2 text-gray-700 hover:bg-gray-100"
+                  >
+                    <i class="fas fa-truck mr-2 text-primary"></i>
+                    My Transports
+                  </a>
+                  <a
+                    href="/transports/add"
+                    class="block px-4 py-2 text-gray-700 hover:bg-gray-100"
+                  >
+                    <i class="fas fa-plus-circle mr-2 text-primary"></i>
+                    Add Transport
+                  </a>
+                  <button
+                    id="logoutBtn"
+                    class="w-full text-left block px-4 py-2 text-gray-700 hover:bg-gray-100"
+                  >
+                    <i class="fas fa-sign-out-alt mr-2 text-primary"></i>
+                    Logout
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="md:hidden">
+            <button class="text-gray-500 hover:text-primary" id="mobileMenuBtn">
+              <i class="fas fa-bars text-xl"></i>
+            </button>
+          </div>
+        </div>
+        <!-- Mobile Menu -->
+        <div class="md:hidden hidden mt-3 pb-3" id="mobileMenu">
+          <a href="/" class="block py-2 text-gray-700 hover:text-primary"
+            >Home</a
+          >
+          <a
+            href="/transports"
+            class="block py-2 text-gray-700 hover:text-primary"
+            >Browse Transports</a
+          >
+          <!-- Mobile guest menu -->
+          <div id="mobileGuestMenu">
+            <a href="/login" class="block py-2 text-gray-700 hover:text-primary"
+              >Login</a
+            >
+            <a
+              href="/register"
+              class="block py-2 text-gray-700 hover:text-primary"
+              >Register</a
+            >
+          </div>
+          <!-- Mobile authenticated menu -->
+          <div id="mobileAuthMenu" class="hidden">
+            <a
+              href="/my-transports"
+              class="block py-2 text-gray-700 hover:text-primary"
+              >My Transports</a
+            >
+            <a
+              href="/transports/add"
+              class="block py-2 text-gray-700 hover:text-primary"
+              >Add Transport</a
+            >
+            <button
+              id="mobileLogoutBtn"
+              class="block w-full text-left py-2 text-gray-700 hover:text-primary"
+            >
+              Logout
+            </button>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container mx-auto px-4 py-6 flex-grow">
+      {% block content %}{% endblock %}
+    </main>
+
+    <footer class="bg-gray-800 text-white mt-auto">
+      <div class="container mx-auto px-4 py-8">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div>
+            <h3 class="text-lg font-semibold mb-4">AgriTransport</h3>
+            <p class="text-gray-300">
+              Connect with agricultural transport owners and rent the equipment
+              you need.
+            </p>
+          </div>
+          <div>
+            <h3 class="text-lg font-semibold mb-4">Quick Links</h3>
+            <ul class="space-y-2">
+              <li>
+                <a href="/" class="text-gray-300 hover:text-white transition"
+                  >Home</a
+                >
+              </li>
+              <li>
+                <a
+                  href="/transports"
+                  class="text-gray-300 hover:text-white transition"
+                  >Browse Transports</a
+                >
+              </li>
+              <li>
+                <a
+                  href="/about"
+                  class="text-gray-300 hover:text-white transition"
+                  >About Us</a
+                >
+              </li>
+              <li>
+                <a
+                  href="/contact"
+                  class="text-gray-300 hover:text-white transition"
+                  >Contact</a
+                >
+              </li>
+            </ul>
+          </div>
+          <div>
+            <h3 class="text-lg font-semibold mb-4">Contact Us</h3>
+            <p class="text-gray-300 flex items-center mb-2">
+              <i class="fas fa-envelope mr-2"></i> info@agritransport.com
+            </p>
+            <p class="text-gray-300 flex items-center">
+              <i class="fas fa-phone mr-2"></i> +1 234 567 8900
+            </p>
+          </div>
+        </div>
+        <div
+          class="border-t border-gray-700 mt-8 pt-6 text-center text-gray-400"
+        >
+          <p>&copy; 2023 AgriTransport. All rights reserved.</p>
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      // Mobile menu toggle
+      document
+        .getElementById("mobileMenuBtn")
+        .addEventListener("click", function () {
+          const mobileMenu = document.getElementById("mobileMenu");
+          mobileMenu.classList.toggle("hidden");
+        });
+
+      // Auth dropdown toggle
+      document
+        .getElementById("authToggleBtn")
+        .addEventListener("click", function (e) {
+          e.preventDefault();
+          const dropdown = document.getElementById("authDropdown");
+          dropdown.classList.toggle("hidden");
+        });
+
+      // Close dropdown when clicking outside
+      document.addEventListener("click", function (e) {
+        const dropdown = document.getElementById("authDropdown");
+        const userMenu = document.getElementById("userMenuContainer");
+        if (
+          !userMenu.contains(e.target) &&
+          !dropdown.classList.contains("hidden")
+        ) {
+          dropdown.classList.add("hidden");
+        }
+      });
+
+      // Handle logout
+      document.addEventListener("DOMContentLoaded", function () {
+        // Desktop logout
+        const logoutBtn = document.getElementById("logoutBtn");
+        if (logoutBtn) {
+          logoutBtn.addEventListener("click", function () {
+            auth.logout();
+          });
+        }
+
+        // Mobile logout
+        const mobileLogoutBtn = document.getElementById("mobileLogoutBtn");
+        if (mobileLogoutBtn) {
+          mobileLogoutBtn.addEventListener("click", function () {
+            auth.logout();
+          });
+        }
+
+        // Update mobile menu based on auth state
+        if (auth.isLoggedIn()) {
+          document.getElementById("mobileGuestMenu").classList.add("hidden");
+          document.getElementById("mobileAuthMenu").classList.remove("hidden");
+        } else {
+          document.getElementById("mobileGuestMenu").classList.remove("hidden");
+          document.getElementById("mobileAuthMenu").classList.add("hidden");
+        }
+      });
+    </script>
+    {% block scripts %}{% endblock %}
+  </body>
+</html>

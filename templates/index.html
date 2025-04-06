@@ -1,0 +1,250 @@
+{% extends "base.html" %} {% block title %}AgriTransport - Rent Agricultural
+Vehicles{% endblock %} {% block content %}
+<!-- Hero Section -->
+<section class="py-12 md:py-20">
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+    <div>
+      <h1 class="text-4xl md:text-5xl font-bold text-gray-800 mb-4">
+        Find the Right Agricultural Transport
+      </h1>
+      <p class="text-lg text-gray-600 mb-8">
+        Connect with agricultural vehicle owners and rent the equipment you need
+        for your farm operations.
+      </p>
+      <div class="flex flex-wrap gap-4">
+        <a
+          href="/transports"
+          class="bg-primary hover:bg-primary/90 text-white font-semibold py-3 px-6 rounded-lg transition"
+        >
+          Browse Transport
+        </a>
+        <a
+          id="listTransportBtn"
+          href="#"
+          class="bg-white border-2 border-primary text-primary hover:bg-gray-50 font-semibold py-3 px-6 rounded-lg transition"
+        >
+          List Your Transport
+        </a>
+      </div>
+    </div>
+    <div class="relative">
+      <img
+        src="https://images.unsplash.com/photo-1586771107445-d3ca888129ce?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1172&q=80"
+        alt="Agricultural Transport"
+        class="rounded-lg shadow-lg w-full h-auto"
+      />
+    </div>
+  </div>
+</section>
+
+<!-- Features Section -->
+<section class="py-12 bg-gray-100 rounded-xl my-12">
+  <div class="text-center mb-12">
+    <h2 class="text-3xl font-bold text-gray-800 mb-3">
+      Why Choose AgriTransport?
+    </h2>
+    <p class="text-gray-600 max-w-2xl mx-auto">
+      Our platform makes it easy to find and rent agricultural vehicles for your
+      farming operations.
+    </p>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+    <div class="bg-white p-6 rounded-lg shadow-md text-center">
+      <div
+        class="bg-primary/10 w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-4"
+      >
+        <i class="fas fa-search text-2xl text-primary"></i>
+      </div>
+      <h3 class="text-xl font-bold text-gray-800 mb-2">Easy to Search</h3>
+      <p class="text-gray-600">
+        Find the right agricultural transport with our advanced filtering
+        options.
+      </p>
+    </div>
+
+    <div class="bg-white p-6 rounded-lg shadow-md text-center">
+      <div
+        class="bg-primary/10 w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-4"
+      >
+        <i class="fas fa-handshake text-2xl text-primary"></i>
+      </div>
+      <h3 class="text-xl font-bold text-gray-800 mb-2">Secure Rentals</h3>
+      <p class="text-gray-600">
+        Our platform ensures safe and secure transactions between owners and
+        renters.
+      </p>
+    </div>
+
+    <div class="bg-white p-6 rounded-lg shadow-md text-center">
+      <div
+        class="bg-primary/10 w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-4"
+      >
+        <i class="fas fa-money-bill-wave text-2xl text-primary"></i>
+      </div>
+      <h3 class="text-xl font-bold text-gray-800 mb-2">Extra Income</h3>
+      <p class="text-gray-600">
+        Transport owners can earn additional income by renting out their
+        equipment.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- Popular Categories -->
+<section class="py-12">
+  <div class="text-center mb-12">
+    <h2 class="text-3xl font-bold text-gray-800 mb-3">Popular Categories</h2>
+    <p class="text-gray-600 max-w-2xl mx-auto">
+      Browse our most popular agricultural transport categories
+    </p>
+  </div>
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+    <a href="/transports?category=tractor" class="group">
+      <div class="relative overflow-hidden rounded-lg shadow-md">
+        <img
+          src="https://images.unsplash.com/photo-1589923188900-85dae523342b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80"
+          alt="Tractors"
+          class="w-full h-48 object-cover group-hover:scale-105 transition duration-300"
+        />
+        <div
+          class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end"
+        >
+          <h3 class="text-white text-xl font-semibold p-4">Tractors</h3>
+        </div>
+      </div>
+    </a>
+
+    <a href="/transports?category=harvester" class="group">
+      <div class="relative overflow-hidden rounded-lg shadow-md">
+        <img
+          src="https://images.unsplash.com/photo-1591805202272-3b37d7d2a627?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80"
+          alt="Harvesters"
+          class="w-full h-48 object-cover group-hover:scale-105 transition duration-300"
+        />
+        <div
+          class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end"
+        >
+          <h3 class="text-white text-xl font-semibold p-4">Harvesters</h3>
+        </div>
+      </div>
+    </a>
+
+    <a href="/transports?category=truck" class="group">
+      <div class="relative overflow-hidden rounded-lg shadow-md">
+        <img
+          src="https://images.unsplash.com/photo-1600954700650-d39e61469276?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80"
+          alt="Trucks"
+          class="w-full h-48 object-cover group-hover:scale-105 transition duration-300"
+        />
+        <div
+          class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end"
+        >
+          <h3 class="text-white text-xl font-semibold p-4">Trucks</h3>
+        </div>
+      </div>
+    </a>
+
+    <a href="/transports?category=other" class="group">
+      <div class="relative overflow-hidden rounded-lg shadow-md">
+        <img
+          src="https://images.unsplash.com/photo-1486328228937-32c4a1b0bd0a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80"
+          alt="Other Equipment"
+          class="w-full h-48 object-cover group-hover:scale-105 transition duration-300"
+        />
+        <div
+          class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end"
+        >
+          <h3 class="text-white text-xl font-semibold p-4">Other Equipment</h3>
+        </div>
+      </div>
+    </a>
+  </div>
+</section>
+
+<!-- CTA Section -->
+<section class="py-16 bg-primary rounded-xl my-12 text-white text-center">
+  <h2 class="text-3xl font-bold mb-4">Ready to Get Started?</h2>
+  <p class="text-lg mb-8 max-w-xl mx-auto">
+    Join our platform today to rent agricultural transport or list your own
+    equipment for rent.
+  </p>
+  <div class="flex flex-wrap justify-center gap-4">
+    <a
+      id="createAccountBtn"
+      href="#"
+      class="bg-white text-primary hover:bg-gray-100 font-semibold py-3 px-6 rounded-lg transition"
+    >
+      Create an Account
+    </a>
+    <a
+      href="/transports"
+      class="bg-transparent border-2 border-white text-white hover:bg-white/10 font-semibold py-3 px-6 rounded-lg transition"
+    >
+      Browse Transports
+    </a>
+  </div>
+</section>
+{% endblock %} {% block scripts %}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    // Handle "List Your Transport" button
+    const listTransportBtn = document.getElementById("listTransportBtn");
+
+    if (listTransportBtn) {
+      listTransportBtn.addEventListener("click", function (e) {
+        e.preventDefault();
+
+        // Check if user is logged in
+        if (auth.isLoggedIn()) {
+          // User is logged in, check if they're an owner
+          authFetch("/api/users/me")
+            .then((response) => {
+              if (response.ok) {
+                return response.json();
+              } else {
+                // If there's an error, treat as not logged in
+                window.location.href = "/login";
+                throw new Error("Authentication failed");
+              }
+            })
+            .then((userData) => {
+              if (userData.is_owner) {
+                // User is an owner, redirect to add transport page
+                window.location.href = "/transports/add";
+              } else {
+                // User is not an owner, redirect to My Transports page which will show owner upgrade UI
+                window.location.href = "/my-transports";
+              }
+            })
+            .catch((error) => {
+              console.error("Error checking user status:", error);
+            });
+        } else {
+          // User is not logged in, redirect to login
+          window.location.href = "/login";
+        }
+      });
+    }
+
+    // Handle "Create Account" button
+    const createAccountBtn = document.getElementById("createAccountBtn");
+
+    if (createAccountBtn) {
+      createAccountBtn.addEventListener("click", function (e) {
+        e.preventDefault();
+
+        // Check if user is already logged in
+        if (auth.isLoggedIn()) {
+          // If already logged in, redirect to My Transports
+          window.location.href = "/my-transports";
+        } else {
+          // Not logged in, go to register page
+          window.location.href = "/register";
+        }
+      });
+    }
+  });
+</script>
+{% endblock %}

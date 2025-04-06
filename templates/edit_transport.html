@@ -1,0 +1,396 @@
+{% extends "base.html" %} {% block title %}Edit Transport | AgriTransport{%
+endblock %} {% block content %}
+<div class="py-6">
+  <!-- Authentication Check - This section will show if user is not logged in -->
+  <div id="not-authenticated" class="hidden">
+    <div class="text-center py-12">
+      <i class="fas fa-lock text-5xl text-gray-300 mb-4"></i>
+      <h2 class="text-2xl font-bold text-gray-800 mb-4">
+        Authentication Required
+      </h2>
+      <p class="text-gray-600 mb-6">
+        You need to be logged in to edit transports.
+      </p>
+      <div class="flex justify-center space-x-4">
+        <a
+          href="/login"
+          class="bg-primary hover:bg-primary/90 text-white font-semibold py-2 px-6 rounded-lg transition"
+        >
+          Login
+        </a>
+        <a
+          href="/register"
+          class="border border-primary text-primary hover:bg-primary/5 font-semibold py-2 px-6 rounded-lg transition"
+        >
+          Register
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading indicator -->
+  <div id="loading-indicator" class="text-center py-12">
+    <i class="fas fa-spinner fa-spin text-3xl text-primary mb-4"></i>
+    <p class="text-gray-600">Loading transport data...</p>
+  </div>
+
+  <!-- Error message if transport not found or not authorized -->
+  <div id="error-message" class="hidden text-center py-12">
+    <i class="fas fa-exclamation-circle text-4xl text-red-500 mb-4"></i>
+    <h2 class="text-2xl font-bold text-gray-800 mb-4">Transport Not Found</h2>
+    <p class="text-gray-600 mb-6">
+      The transport you're trying to edit doesn't exist or you don't have
+      permission to edit it.
+    </p>
+    <a
+      href="/my-transports"
+      class="bg-primary hover:bg-primary/90 text-white font-semibold py-2 px-6 rounded-lg transition"
+    >
+      Back to My Transports
+    </a>
+  </div>
+
+  <!-- Main content - Only visible when authenticated and transport is found -->
+  <div id="authenticated-content" class="hidden">
+    <div class="flex items-center mb-8">
+      <a
+        href="/my-transports"
+        class="text-primary hover:underline inline-flex items-center mr-4"
+      >
+        <i class="fas fa-arrow-left mr-2"></i>
+        Back to My Transports
+      </a>
+      <h1 class="text-3xl font-bold text-gray-800">Edit Transport</h1>
+    </div>
+
+    <div
+      id="form-error-container"
+      class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md mb-6 hidden"
+    >
+      <span id="form-error-message"></span>
+    </div>
+
+    <form
+      id="editTransportForm"
+      class="bg-white rounded-lg shadow-md p-6 max-w-3xl"
+    >
+      <input type="hidden" id="transport_id" name="transport_id" />
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Basic Information -->
+        <div class="md:col-span-2">
+          <h2 class="text-xl font-semibold text-gray-800 mb-4">
+            Basic Information
+          </h2>
+        </div>
+
+        <div>
+          <label for="name" class="block text-sm font-medium text-gray-700 mb-1"
+            >Transport Name</label
+          >
+          <input
+            type="text"
+            id="name"
+            name="name"
+            required
+            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary/20 focus:border-primary transition"
+          />
+        </div>
+
+        <div>
+          <label
+            for="category"
+            class="block text-sm font-medium text-gray-700 mb-1"
+            >Category</label
+          >
+          <select
+            id="category"
+            name="category"
+            required
+            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary/20 focus:border-primary transition"
+          >
+            <option value="">Select a category</option>
+            <option value="tractor">Tractor</option>
+            <option value="harvester">Harvester</option>
+            <option value="truck">Truck</option>
+            <option value="seeder">Seeder</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+
+        <div>
+          <label
+            for="location"
+            class="block text-sm font-medium text-gray-700 mb-1"
+            >Location</label
+          >
+          <select
+            id="location"
+            name="location"
+            required
+            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary/20 focus:border-primary transition"
+          >
+            <option value="">Select a location</option>
+            <option value="north">Northern Region</option>
+            <option value="south">Southern Region</option>
+            <option value="east">Eastern Region</option>
+            <option value="west">Western Region</option>
+            <option value="central">Central Region</option>
+          </select>
+        </div>
+
+        <div>
+          <label
+            for="price_per_day"
+            class="block text-sm font-medium text-gray-700 mb-1"
+            >Price per Day ($)</label
+          >
+          <input
+            type="number"
+            id="price_per_day"
+            name="price_per_day"
+            min="1"
+            step="0.01"
+            required
+            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary/20 focus:border-primary transition"
+          />
+        </div>
+
+        <div class="md:col-span-2">
+          <label
+            for="description"
+            class="block text-sm font-medium text-gray-700 mb-1"
+            >Description</label
+          >
+          <textarea
+            id="description"
+            name="description"
+            rows="4"
+            required
+            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary/20 focus:border-primary transition"
+          ></textarea>
+        </div>
+
+        <!-- Specifications -->
+        <div class="md:col-span-2 border-t pt-6 mt-2">
+          <h2 class="text-xl font-semibold text-gray-800 mb-4">
+            Specifications
+          </h2>
+        </div>
+
+        <div>
+          <label for="year" class="block text-sm font-medium text-gray-700 mb-1"
+            >Year</label
+          >
+          <input
+            type="number"
+            id="year"
+            name="year"
+            min="1900"
+            max="2099"
+            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary/20 focus:border-primary transition"
+          />
+        </div>
+
+        <div>
+          <label
+            for="model"
+            class="block text-sm font-medium text-gray-700 mb-1"
+            >Model</label
+          >
+          <input
+            type="text"
+            id="model"
+            name="model"
+            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary/20 focus:border-primary transition"
+          />
+        </div>
+
+        <div>
+          <label
+            for="capacity"
+            class="block text-sm font-medium text-gray-700 mb-1"
+            >Capacity</label
+          >
+          <input
+            type="text"
+            id="capacity"
+            name="capacity"
+            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary/20 focus:border-primary transition"
+          />
+        </div>
+
+        <div>
+          <label
+            for="image_url"
+            class="block text-sm font-medium text-gray-700 mb-1"
+            >Image URL</label
+          >
+          <input
+            type="url"
+            id="image_url"
+            name="image_url"
+            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary/20 focus:border-primary transition"
+          />
+          <p class="text-xs text-gray-500 mt-1">
+            Enter a URL for an image of your transport
+          </p>
+        </div>
+
+        <div class="md:col-span-2 border-t pt-6 flex justify-end">
+          <button
+            type="submit"
+            class="bg-primary hover:bg-primary/90 text-white font-semibold py-3 px-6 rounded-lg transition"
+          >
+            Save Changes
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %} {% block scripts %}
+<script>
+  // Get transport ID from URL
+  const urlParams = new URLSearchParams(window.location.search);
+  const transportId = urlParams.get("id");
+
+  // Check authentication first
+  document.addEventListener("DOMContentLoaded", async function () {
+    if (!auth.isLoggedIn()) {
+      // Show not authenticated message
+      document.getElementById("loading-indicator").classList.add("hidden");
+      document.getElementById("not-authenticated").classList.remove("hidden");
+      document.getElementById("authenticated-content").classList.add("hidden");
+      return;
+    }
+
+    // If authenticated but no ID provided, show error
+    if (!transportId) {
+      document.getElementById("loading-indicator").classList.add("hidden");
+      document.getElementById("error-message").classList.remove("hidden");
+      document.getElementById("authenticated-content").classList.add("hidden");
+      return;
+    }
+
+    // Load transport data
+    try {
+      const response = await authFetch(`/api/transports/${transportId}`);
+
+      if (response.ok) {
+        const transportData = await response.json();
+
+        // Populate form with transport data
+        document.getElementById("transport_id").value = transportData.id;
+        document.getElementById("name").value = transportData.name;
+        document.getElementById("category").value = transportData.category;
+        document.getElementById("location").value = transportData.location;
+        document.getElementById("price_per_day").value =
+          transportData.price_per_day;
+        document.getElementById("description").value =
+          transportData.description;
+
+        if (transportData.year)
+          document.getElementById("year").value = transportData.year;
+        if (transportData.model)
+          document.getElementById("model").value = transportData.model;
+        if (transportData.capacity)
+          document.getElementById("capacity").value = transportData.capacity;
+        if (transportData.image_url)
+          document.getElementById("image_url").value = transportData.image_url;
+
+        // Hide loading, show content
+        document.getElementById("loading-indicator").classList.add("hidden");
+        document
+          .getElementById("authenticated-content")
+          .classList.remove("hidden");
+      } else {
+        // Transport not found or not authorized
+        document.getElementById("loading-indicator").classList.add("hidden");
+        document.getElementById("error-message").classList.remove("hidden");
+      }
+    } catch (error) {
+      console.error("Error loading transport:", error);
+      document.getElementById("loading-indicator").classList.add("hidden");
+      document.getElementById("error-message").classList.remove("hidden");
+    }
+  });
+
+  // Handle form submission
+  document
+    .getElementById("editTransportForm")
+    .addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      const errorContainer = document.getElementById("form-error-container");
+      const errorMessage = document.getElementById("form-error-message");
+
+      // Hide any previous error
+      errorContainer.classList.add("hidden");
+
+      const transportId = document.getElementById("transport_id").value;
+
+      // Create payload from form
+      const payload = {
+        name: document.getElementById("name").value,
+        category: document.getElementById("category").value,
+        location: document.getElementById("location").value,
+        price_per_day: parseFloat(
+          document.getElementById("price_per_day").value
+        ),
+        description: document.getElementById("description").value,
+        year: document.getElementById("year").value
+          ? parseInt(document.getElementById("year").value)
+          : null,
+        model: document.getElementById("model").value || null,
+        capacity: document.getElementById("capacity").value || null,
+        image_url: document.getElementById("image_url").value || null,
+      };
+
+      try {
+        const response = await authFetch(`/api/transports/${transportId}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        });
+
+        if (response.ok) {
+          // Show success message
+          const successDiv = document.createElement("div");
+          successDiv.className =
+            "bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-md mb-6";
+          successDiv.textContent =
+            "Transport updated successfully! Redirecting...";
+
+          const form = document.getElementById("editTransportForm");
+          form.parentNode.insertBefore(successDiv, form);
+
+          // Redirect to my transports page
+          setTimeout(() => {
+            window.location.href = "/my-transports?updated=true";
+          }, 1000);
+        } else {
+          // Show error message
+          let message = "Failed to update transport.";
+          try {
+            const errorData = await response.json();
+            if (errorData.detail) {
+              message = errorData.detail;
+            }
+          } catch (e) {
+            console.error("Error parsing response:", e);
+          }
+
+          errorMessage.textContent = message;
+          errorContainer.classList.remove("hidden");
+        }
+      } catch (error) {
+        console.error("Update transport error:", error);
+        errorMessage.textContent =
+          "An error occurred while updating the transport. Please try again.";
+        errorContainer.classList.remove("hidden");
+      }
+    });
+</script>
+{% endblock %}

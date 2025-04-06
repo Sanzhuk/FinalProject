@@ -1,0 +1,236 @@
+{% extends "base.html" %} {% block title %}Browse Agricultural Transports{%
+endblock %} {% block content %}
+<div class="py-6">
+  <h1 class="text-3xl font-bold text-gray-800 mb-6">
+    Browse Available Transports
+  </h1>
+
+  <!-- Filter Section -->
+  <div class="bg-white p-6 rounded-lg shadow-md mb-8">
+    <h2 class="text-xl font-semibold mb-4">Filter Options</h2>
+    <form id="filterForm" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div>
+        <label
+          for="category"
+          class="block text-sm font-medium text-gray-700 mb-1"
+          >Category</label
+        >
+        <select
+          id="category"
+          name="category"
+          class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary/20 transition"
+        >
+          <option value="">All Categories</option>
+          <option value="tractor">Tractor</option>
+          <option value="harvester">Harvester</option>
+          <option value="truck">Truck</option>
+          <option value="seeder">Seeder</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+
+      <div>
+        <label
+          for="location"
+          class="block text-sm font-medium text-gray-700 mb-1"
+          >Location</label
+        >
+        <select
+          id="location"
+          name="location"
+          class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary/20 transition"
+        >
+          <option value="">All Locations</option>
+          <option value="north">Northern Region</option>
+          <option value="south">Southern Region</option>
+          <option value="east">Eastern Region</option>
+          <option value="west">Western Region</option>
+          <option value="central">Central Region</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="price" class="block text-sm font-medium text-gray-700 mb-1"
+          >Price Range ($/day)</label
+        >
+        <div class="flex items-center space-x-2">
+          <input
+            type="number"
+            id="min_price"
+            name="min_price"
+            placeholder="Min"
+            class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary/20 transition"
+          />
+          <span>-</span>
+          <input
+            type="number"
+            id="max_price"
+            name="max_price"
+            placeholder="Max"
+            class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary/20 transition"
+          />
+        </div>
+      </div>
+
+      <div class="flex items-end">
+        <button
+          type="submit"
+          class="w-full bg-primary hover:bg-primary/90 text-white font-medium py-2 px-4 rounded-md transition"
+        >
+          Apply Filters
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Results Section -->
+  <div
+    class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+    id="transportsList"
+  >
+    {% for transport in transports %}
+    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+      <div class="h-48 overflow-hidden">
+        {% if transport.image_url %}
+        <img
+          src="{{ transport.image_url }}"
+          alt="{{ transport.name }}"
+          class="w-full h-full object-cover"
+        />
+        {% else %}
+        <img
+          src="https://images.unsplash.com/photo-1586771107445-d3ca888129ce?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1172&q=80"
+          alt="{{ transport.name }}"
+          class="w-full h-full object-cover"
+        />
+        {% endif %}
+      </div>
+      <div class="p-5">
+        <div class="flex justify-between items-start">
+          <h3 class="text-xl font-semibold text-gray-800">
+            {{ transport.name }}
+          </h3>
+          <span
+            class="bg-primary/10 text-primary text-sm font-medium px-2.5 py-0.5 rounded-full"
+            >{{ transport.category }}</span
+          >
+        </div>
+        <p class="text-gray-500 mt-2">
+          <i class="fas fa-map-marker-alt mr-1"></i> {{ transport.location }}
+        </p>
+        <p class="text-gray-700 mt-3 line-clamp-2">
+          {{ transport.description }}
+        </p>
+        <div class="mt-4 flex justify-between items-center">
+          <span class="text-lg font-bold text-primary"
+            >${{ transport.price_per_day }}/day</span
+          >
+          <a
+            href="/transports/{{ transport.id }}"
+            class="inline-flex items-center font-medium text-primary hover:underline"
+          >
+            View Details
+            <i class="fas fa-chevron-right ml-1 text-xs"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+    {% else %}
+    <div class="col-span-full text-center py-12">
+      <i class="fas fa-tractor text-5xl text-gray-300 mb-4"></i>
+      <h3 class="text-2xl font-semibold text-gray-700 mb-2">
+        No transports found
+      </h3>
+      <p class="text-gray-500">
+        No matching transports found. Try adjusting your filters.
+      </p>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Pagination -->
+  <div class="mt-8 flex justify-center">
+    <nav class="flex items-center space-x-2">
+      <a
+        href="#"
+        class="px-3 py-2 rounded-md bg-white text-gray-500 hover:bg-gray-50 border"
+      >
+        <i class="fas fa-chevron-left"></i>
+      </a>
+      <a href="#" class="px-3 py-2 rounded-md bg-primary text-white font-medium"
+        >1</a
+      >
+      <a
+        href="#"
+        class="px-3 py-2 rounded-md bg-white text-gray-700 hover:bg-gray-50 border"
+        >2</a
+      >
+      <a
+        href="#"
+        class="px-3 py-2 rounded-md bg-white text-gray-700 hover:bg-gray-50 border"
+        >3</a
+      >
+      <a
+        href="#"
+        class="px-3 py-2 rounded-md bg-white text-gray-500 hover:bg-gray-50 border"
+      >
+        <i class="fas fa-chevron-right"></i>
+      </a>
+    </nav>
+  </div>
+</div>
+{% endblock %} {% block scripts %}
+<script>
+  document
+    .getElementById("filterForm")
+    .addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      // In a real application, this would be an AJAX request to the backend
+      // For this demo, we'll just simulate a refresh
+      const category = document.getElementById("category").value;
+      const location = document.getElementById("location").value;
+      const minPrice = document.getElementById("min_price").value;
+      const maxPrice = document.getElementById("max_price").value;
+
+      // Build query string
+      const params = new URLSearchParams(window.location.search);
+
+      if (category) params.set("category", category);
+      else params.delete("category");
+
+      if (location) params.set("location", location);
+      else params.delete("location");
+
+      if (minPrice) params.set("min_price", minPrice);
+      else params.delete("min_price");
+
+      if (maxPrice) params.set("max_price", maxPrice);
+      else params.delete("max_price");
+
+      // Redirect with filters
+      window.location.href = window.location.pathname + "?" + params.toString();
+    });
+
+  // Set form values from URL on page load
+  window.addEventListener("load", function () {
+    const params = new URLSearchParams(window.location.search);
+
+    if (params.has("category")) {
+      document.getElementById("category").value = params.get("category");
+    }
+
+    if (params.has("location")) {
+      document.getElementById("location").value = params.get("location");
+    }
+
+    if (params.has("min_price")) {
+      document.getElementById("min_price").value = params.get("min_price");
+    }
+
+    if (params.has("max_price")) {
+      document.getElementById("max_price").value = params.get("max_price");
+    }
+  });
+</script>
+{% endblock %}
